@@ -1,34 +1,40 @@
 pipeline {
     agent any
 
+    tools {
+        // Debe coincidir con el nombre que pusiste en Global Tool Configuration
+        dependencyCheck 'Dependency-Check'
+    }
+
     stages {
         stage('Build') {
             steps {
-                echo 'Preparando entorno y dependencias para la aplicación Flask...'
+                sh 'echo "Preparando proyecto..."'
             }
         }
-        
+
         stage('Test') {
             steps {
-                echo 'Ejecutando pruebas unitarias o básicas...'
+                sh 'echo "Ejecutando pruebas..."'
             }
         }
-        
+
         stage('Analyze') {
             steps {
-                echo 'Ejecutando análisis de calidad y seguridad estática con SonarQube...'
+                sh 'echo "Analizando codigo..."'
             }
         }
-        
+
         stage('Security Test') {
             steps {
-                echo 'Ejecutando OWASP Dependency-Check y OWASP ZAP...'
+                sh 'dependencyCheck --project "DevSecOps-Proyecto" --scan "." --format "HTML" --out "dependency-check-report"'
+                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                echo 'Desplegando la aplicación en entorno de prueba...'
+                sh 'echo "Desplegando..."'
             }
         }
     }
