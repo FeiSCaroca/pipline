@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         // Debe coincidir con el nombre que pusiste en Global Tool Configuration
-        dependencyCheck 'Dependency-Check'
+        'dependency-check' 'Dependency-Check'
     }
 
     stages {
