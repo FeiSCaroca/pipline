@@ -9,7 +9,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo "Preparando DevSecOps-Proyecto..."'
+                sh 'echo "Compilando / verificando código fuente..."'
+                sh 'python3 -m py_compile app.py || python -m py_compile app.py'
             }
         }
 
@@ -60,9 +61,28 @@ pipeline {
             }
         }
 
+        stage('Generate Documentation') {
+            steps {
+                sh 'doxygen Doxyfile'
+                sh 'ls -la docs'
+            }
+        }
+
+        stage('Version Control') {
+            steps {
+                sh '''
+                    git config user.name "Jenkins CI"
+                    git config user.email "jenkins@local.dev"
+                    git status -s
+                    git add Doxyfile app.py docs || true
+                    git commit -m "Docs: actualizar documentación Doxygen [skip ci]" || echo "Sin cambios nuevos para commit"
+                '''
+            }
+        }
+
         stage('Deploy') {
             steps {
-                sh 'echo "Desplegando aplicación..."'
+                sh 'echo "Desplegando aplicación y documentación..."'
             }
         }
     }
