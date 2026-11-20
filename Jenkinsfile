@@ -26,11 +26,14 @@ pipeline {
         }
 
         stage('Security Test') {
-            steps {
-                sh 'dependencyCheck --project "DevSecOps-Proyecto" --scan "." --format "HTML" --out "dependency-check-report"'
+    	    steps {
+        	 sh '''
+                   which dependency-check.sh || true
+                   dependency-check.sh --project "DevSecOps-Proyecto" --scan "." --format "HTML" --out "dependency-check-report"
+                  '''
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
-            }
-        }
+          }
+      }
 
         stage('Deploy') {
             steps {
