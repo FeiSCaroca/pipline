@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     tools {
-        // Debe coincidir con el nombre que pusiste en Global Tool Configuration
         'dependency-check' 'Dependency-Check'
     }
 
@@ -26,14 +25,20 @@ pipeline {
         }
 
         stage('Security Test') {
-    	    steps {
-        	 sh '''
-                   which dependency-check.sh || true
-                   dependency-check.sh --project "DevSecOps-Proyecto" --scan "." --format "HTML" --out "dependency-check-report"
-                  '''
+            steps {
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
+                    sh '''
+                        dependency-check.sh \
+                            --project "DevSecOps-Proyecto" \
+                            --scan "." \
+                            --format "ALL" \
+                            --out "dependency-check-report" \
+                            --nvdApiKey "$NVD_API_KEY"
+                    '''
+                }
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
-          }
-      }
+            }
+        }
 
         stage('Deploy') {
             steps {
