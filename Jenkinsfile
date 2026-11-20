@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'echo "Preparando proyecto..."'
+                sh 'echo "Preparando DevSecOps-Proyecto..."'
             }
         }
 
@@ -48,18 +48,21 @@ pipeline {
                 dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
 
                 sh '''
-		  mkdir -p zap-report
-		  chmod -R 777 zap-report
- 		 docker run --rm --user 0:0 \
- 		     -v "$(pwd)/zap-report:/zap/wrk:rw" \
-   		   ghcr.io/zaproxy/zaproxy:stable \
-    		  zap-baseline.py -t http://host.docker.internal:5000/hello?name=test -r zap_report.html || true
-    		mod -R 777 zap-report
-'''
+                    mkdir -p zap-report
+                    chmod -R 777 zap-report
+                    docker run --rm --user 0:0 \
+                        --add-host=host.docker.internal:host-gateway \
+                        -v "$(pwd)/zap-report:/zap/wrk:rw" \
+                        ghcr.io/zaproxy/zaproxy:stable \
+                        zap-baseline.py -t http://host.docker.internal:5000/hello?name=test -r zap_report.html || true
+                    chmod -R 777 zap-report
+                '''
+            }
+        }
 
         stage('Deploy') {
             steps {
-                sh 'echo "Desplegando..."'
+                sh 'echo "Desplegando aplicación..."'
             }
         }
     }
