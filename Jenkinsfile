@@ -33,6 +33,18 @@ pipeline {
             }
         }
 
+        stage('Dependency Management') {
+            steps {
+                sh '''
+                    export PIPENV_VENV_IN_PROJECT=1
+                    pipenv --version
+                    pipenv lock --skip-lock || true
+                    pipenv install --ignore-pipfile || pipenv install -r requirements.txt --skip-lock
+                    pipenv graph || true
+                '''
+            }
+        }
+
         stage('Security Test') {
             steps {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD_API_KEY')]) {
